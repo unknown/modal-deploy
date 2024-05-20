@@ -21,6 +21,12 @@
 		errorMessage = '';
 		statusMessage = '';
 
+		if (!URL.canParse(fileUrlInput.value)) {
+			errorMessage = 'Invalid URL';
+			loading = false;
+			return;
+		}
+
 		const fileUrl = fileUrlInput.value;
 		const url =
 			'https://unknown--modal-deploy-deploy-repo-endpoint.modal.run/?github_file_url=' +
@@ -79,8 +85,16 @@
 
 <StaticGradient />
 <div class="flex min-h-screen flex-col">
-	<main class="flex max-w-screen-xl flex-1 flex-col items-center justify-center">
-		<div class="rounded-lg border border-white/10 bg-white/5 p-4 md:p-6">
+	<main class="relative flex w-full flex-1 flex-col items-center justify-center">
+		<a
+			href="https://github.com/unknown/modal-deploy"
+			rel="noopener noreferrer"
+			target="_blank"
+			class="btn btn-outlined absolute right-8 top-8 text-sm"
+		>
+			Star on GitHub
+		</a>
+		<div class="max-w-screen-sm rounded-lg border border-white/10 bg-white/5 p-4 md:p-6">
 			<h2 class="mb-2 text-2xl">Deploy Modal Endpoints</h2>
 			<p class="pb-3 text-sm text-zinc-400">
 				Deploy web endpoints to Modal with a single click of a button.
@@ -97,6 +111,10 @@
 					/>
 				</div>
 				<button class="btn btn-outlined btn-primary" disabled={loading}>Deploy to Modal</button>
+				<p class="text-sm text-zinc-400">
+					Your credentials are never saved! To deploy your app, you will be prompted to create a new
+					token which will be used to deploy your app. This token is not persisted anywhere.
+				</p>
 			</form>
 			{#if errorMessage}
 				<div class="text-sm text-red-500">{errorMessage}</div>

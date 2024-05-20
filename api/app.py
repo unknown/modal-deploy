@@ -21,20 +21,21 @@ image = (
 
 
 def extract_github_info(url: str):
-    pattern = r"https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)"
-
+    pattern = (
+        r"https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/(?:blob|tree)\/([^\/]+)(?:\/(.*))?"
+    )
     match = re.search(pattern, url)
 
     if match:
         org = match.group(1)
         repo = match.group(2)
         branch = match.group(3)
-        path = match.group(4)
+        path = match.group(4) if match.group(4) is not None else ""
 
         return (org, repo, branch, path)
     else:
         raise ValueError(
-            "The URL is not in the expected format: https://github.com/{org}/{repo}/blob/{branch}/{path}"
+            "The URL is not in the expected format: https://github.com/{org}/{repo}/(blob|tree)/{branch}/{path}"
         )
 
 
@@ -52,9 +53,9 @@ def deploy_repo(github_file_url: str):
 
             file_path = os.path.join(dir_name, path)
             if not os.path.exists(file_path):
-                raise ValueError(f"The path {path} does not exist in {repo_url}")
+                raise ValueError(f'The path "{path}" does not exist in {repo_url}')
             elif not os.path.isfile(file_path):
-                raise ValueError(f"The path {path} is not a file in {repo_url}")
+                raise ValueError(f'The path "{path}" is not a file in {repo_url}')
 
             print("Starting token flow...")
             token_flow = TokenFlow(ModalClient())
@@ -110,6 +111,7 @@ def deploy_repo(github_file_url: str):
     except git.exc.GitCommandError as e:
         yield json.dumps({"success": False, "error": str(e)})
     except Exception as e:
+        print(e)
         yield json.dumps({"success": False, "error": "Unhandled exception"})
 
 
