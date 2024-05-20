@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	@font-face {
+		font-family: 'Tosh Modal';
+		src: url('/fonts/ToshModal-[wght].ttf') format('truetype');
+		font-display: swap;
+	}
+
+	:root {
+		--background: 12 15 11;
+		--foreground: 228 228 231;
+
+		--primary: 127 238 100;
+	}
+}
+
+@layer base {
+	body {
+		@apply bg-background text-foreground antialiased;
+	}
+}
+
+@layer components {
+	[multiple],
+	[type='date'],
+	[type='datetime-local'],
+	[type='email'],
+	[type='month'],
+	[type='number'],
+	[type='password'],
+	[type='search'],
+	[type='tel'],
+	[type='text'],
+	[type='time'],
+	[type='url'],
+	[type='week'],
+	select,
+	textarea {
+		@apply appearance-none rounded-none border border-gray-500 bg-white p-2 px-3 text-base leading-6 shadow-none;
+	}
+
+	[multiple]:focus,
+	[type='date']:focus,
+	[type='datetime-local']:focus,
+	[type='email']:focus,
+	[type='month']:focus,
+	[type='number']:focus,
+	[type='password']:focus,
+	[type='search']:focus,
+	[type='tel']:focus,
+	[type='text']:focus,
+	[type='time']:focus,
+	[type='url']:focus,
+	[type='week']:focus,
+	select:focus,
+	textarea:focus {
+		@apply focus:border-blue-600 focus:outline-none focus:outline-2 focus:outline-offset-2 focus:ring focus:ring-blue-600 focus:ring-offset-0 focus:ring-offset-white;
+	}
+
+	.btn {
+		@apply inline-flex items-center justify-center rounded-lg px-4 py-1.5 text-sm leading-5 text-white ring-primary/50 transition-colors;
+	}
+
+	.btn:focus {
+		@apply outline-none;
+	}
+
+	.btn:focus-visible {
+		@apply ring;
+	}
+
+	.btn:hover {
+		@apply bg-white/5;
+	}
+
+	.btn:active {
+		@apply bg-white/20;
+	}
+
+	.btn:disabled {
+		@apply opacity-50;
+	}
+
+	.btn:active:disabled {
+		@apply bg-white/10;
+	}
+
+	.btn.btn-sm {
+		@apply rounded-md px-1.5 py-0.5 text-sm leading-5;
+	}
+
+	.btn.btn-lg {
+		@apply rounded-xl px-5 py-2.5 font-tosh_modal text-lg font-medium leading-7;
+	}
+
+	.btn-outlined {
+		@apply border border-white/20;
+	}
+
+	.btn-outlined:hover {
+		@apply bg-white/10;
+	}
+
+	.btn-outlined:active {
+		@apply bg-white/20;
+	}
+
+	.btn-primary {
+		@apply text-primary;
+	}
+
+	.btn-primary:hover {
+		@apply bg-primary/10;
+	}
+
+	.btn-primary:active {
+		@apply bg-primary/20;
+	}
+
+	.btn-primary.btn-outlined {
+		@apply border-primary bg-primary/10;
+	}
+
+	.btn-primary.btn-outlined:hover {
+		@apply bg-primary/20;
+	}
+
+	.btn-primary.btn-outlined:active {
+		@apply bg-primary/25;
+	}
+
+	.type-heading-lg {
+		@apply font-tosh_modal text-5xl font-medium leading-[1.2] tracking-tight;
+	}
+
+	@media screen(md) {
+		.type-heading-lg {
+			@apply text-6xl leading-[1];
+		}
+	}
+
+	.type-title-lg {
+		@apply font-tosh_modal text-3xl font-medium leading-[1.2];
+	}
+
+	@media screen(md) {
+		.type-title-lg {
+			@apply text-4xl leading-9;
+		}
+	}
+
+	.type-title-md {
+		@apply font-tosh_modal text-xl font-medium leading-[1.2];
+	}
+
+	@media screen(md) {
+		.type-title-md {
+			@apply text-2xl leading-8;
+		}
+	}
+
+	.type-subtitle-md {
+		@apply text-base leading-[1.5];
+	}
+
+	@media screen(md) {
+		.type-subtitle-md {
+			@apply text-lg leading-7;
+		}
+	}
+
+	[multiple],
+	[type='date'],
+	[type='datetime-local'],
+	[type='email'],
+	[type='month'],
+	[type='number'],
+	[type='password'],
+	[type='search'],
+	[type='tel'],
+	[type='text'],
+	[type='time'],
+	[type='url'],
+	[type='week'],
+	select,
+	textarea {
+		@apply border-white/10 bg-white/5;
+	}
+
+	[multiple]::-moz-placeholder,
+	[type='date']::-moz-placeholder,
+	[type='datetime-local']::-moz-placeholder,
+	[type='email']::-moz-placeholder,
+	[type='month']::-moz-placeholder,
+	[type='number']::-moz-placeholder,
+	[type='password']::-moz-placeholder,
+	[type='search']::-moz-placeholder,
+	[type='tel']::-moz-placeholder,
+	[type='text']::-moz-placeholder,
+	[type='time']::-moz-placeholder,
+	[type='url']::-moz-placeholder,
+	[type='week']::-moz-placeholder,
+	select::-moz-placeholder,
+	textarea::-moz-placeholder {
+		@apply placeholder-zinc-400;
+	}
+
+	[multiple]::placeholder,
+	[type='date']::placeholder,
+	[type='datetime-local']::placeholder,
+	[type='email']::placeholder,
+	[type='month']::placeholder,
+	[type='number']::placeholder,
+	[type='password']::placeholder,
+	[type='search']::placeholder,
+	[type='tel']::placeholder,
+	[type='text']::placeholder,
+	[type='time']::placeholder,
+	[type='url']::placeholder,
+	[type='week']::placeholder,
+	select::placeholder,
+	textarea::placeholder {
+		@apply placeholder-zinc-400;
+	}
+
+	[multiple]:focus,
+	[type='date']:focus,
+	[type='datetime-local']:focus,
+	[type='email']:focus,
+	[type='month']:focus,
+	[type='number']:focus,
+	[type='password']:focus,
+	[type='search']:focus,
+	[type='tel']:focus,
+	[type='text']:focus,
+	[type='time']:focus,
+	[type='url']:focus,
+	[type='week']:focus,
+	select:focus,
+	textarea:focus {
+		@apply focus:border-primary/50 focus:ring-1 focus:ring-primary/50;
+	}
+}
