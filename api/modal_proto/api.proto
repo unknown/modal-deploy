@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package modal.client;
+
+message TokenFlowCreateRequest {
+  string utm_source = 3;
+  int32 localhost_port = 4;
+  string next_url = 5;
+}
+
+message TokenFlowCreateResponse {
+  string token_flow_id = 1;
+  string web_url = 2;
+  string code = 3;
+  string wait_secret = 4;
+};
+
+message TokenFlowWaitRequest {
+  float timeout = 1;
+  string token_flow_id = 2;
+  string wait_secret = 3;
+}
+
+message TokenFlowWaitResponse {
+  string token_id = 1;
+  string token_secret = 2;
+  bool timeout = 3;
+  string workspace_username = 4;
+}
+
+service ModalClient {
+  rpc TokenFlowCreate(TokenFlowCreateRequest) returns (TokenFlowCreateResponse);
+  rpc TokenFlowWait(TokenFlowWaitRequest) returns (TokenFlowWaitResponse);
+}
