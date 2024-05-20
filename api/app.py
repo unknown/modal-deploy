@@ -21,16 +21,17 @@ image = (
 
 
 def extract_github_info(url: str):
-    pattern = r"https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/(.+)"
+    pattern = r"https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)"
 
     match = re.search(pattern, url)
 
     if match:
         org = match.group(1)
         repo = match.group(2)
-        path = match.group(3)
+        branch = match.group(3)
+        path = match.group(4)
 
-        return (org, repo, path)
+        return (org, repo, branch, path)
     else:
         raise ValueError(
             "The URL is not in the expected format: https://github.com/{org}/{repo}/{path}"
@@ -38,13 +39,13 @@ def extract_github_info(url: str):
 
 
 def deploy_repo(github_file_url: str):
-    org, repo, path = extract_github_info(github_file_url)
+    org, repo, branch, path = extract_github_info(github_file_url)
 
     repo_url = f"https://github.com/{org}/{repo}"
     with tempfile.TemporaryDirectory() as dir_name:
         print(f"Cloning {repo_url} to {dir_name}")
 
-        git.Repo.clone_from(repo_url, dir_name)
+        git.Repo.clone_from(repo_url, dir_name, branch=branch)
         file_path = os.path.join(dir_name, path)
 
         print(f"Deploying {file_path}")
