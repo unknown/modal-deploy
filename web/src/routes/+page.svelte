@@ -44,6 +44,7 @@
 		if (!tokenFlowResult.success) {
 			loading = false;
 			errorMessage = tokenFlowResult.error;
+			statusMessage = '';
 			return;
 		}
 
@@ -55,6 +56,7 @@
 		if (!tokenFlowWaitResult.success) {
 			loading = false;
 			errorMessage = tokenFlowWaitResult.error;
+			statusMessage = '';
 			return;
 		}
 
@@ -65,6 +67,7 @@
 		if (!deployResult.success) {
 			loading = false;
 			errorMessage = deployResult.error;
+			statusMessage = '';
 			return;
 		}
 

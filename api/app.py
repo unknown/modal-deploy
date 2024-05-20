@@ -54,8 +54,11 @@ def deploy_repo(github_file_url: str):
 
             print(f"Deploying {file_path}")
 
+            if not os.path.exists(file_path):
+                raise ValueError(f"The path {path} does not exist in {repo_url}")
+
             if not os.path.isfile(file_path):
-                raise ValueError(f"The file {path} does not exist in {repo_url}")
+                raise ValueError(f"The path {path} is not a file in {repo_url}")
 
             token_flow = TokenFlow(ModalClient())
             _, web_url, code = token_flow.start()
@@ -80,7 +83,17 @@ def deploy_repo(github_file_url: str):
             modal_env = os.environ.copy()
             modal_env["MODAL_TOKEN_ID"] = result.token_id
             modal_env["MODAL_TOKEN_SECRET"] = result.token_secret
-            subprocess.run(["modal", "deploy", file_path], env=modal_env)
+            process = subprocess.Popen(
+                ["modal", "deploy", file_path],
+                env=modal_env,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+            )
+            _, stderr = process.communicate()
+            exit_code = process.wait()
+
+            if exit_code != 0:
+                raise ValueError("Deployment failed: " + stderr.decode("utf-8"))
 
             print("Deployment finished successfully!")
             yield json.dumps(
@@ -96,7 +109,10 @@ def deploy_repo(github_file_url: str):
                 "error": str(e),
             }
         )
-        return
+    except git.exc.GitCommandError as e:
+        yield json.dumps({"success": False, "error": str(e)})
+    except Exception as e:
+        yield json.dumps({"success": False, "error": "Unhandled exception"})
 
 
 @app.function(image=image, secrets=[modal.Secret.from_name("github-secret")])
