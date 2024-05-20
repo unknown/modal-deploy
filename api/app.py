@@ -60,11 +60,8 @@ def deploy_repo(github_file_url: str):
             token_flow = TokenFlow(ModalClient())
             _, web_url, code = token_flow.start()
 
-            yield json.dumps(
-                {"success": True, "error": None, "web_url": web_url, "code": code}
-            ) + "\n"
-
             print("Waiting for token flow to complete...")
+            yield json.dumps({"success": True, "web_url": web_url, "code": code}) + "\n"
 
             result = None
             for attempt in range(5):
@@ -77,6 +74,7 @@ def deploy_repo(github_file_url: str):
                 raise ValueError("Timeout waiting for token flow to complete")
 
             print("Web authentication finished successfully!")
+            yield json.dumps({"success": True})
 
             # TODO: modal isn't respecting the env vars
             modal_env = os.environ.copy()
@@ -84,9 +82,13 @@ def deploy_repo(github_file_url: str):
             modal_env["MODAL_TOKEN_SECRET"] = result.token_secret
             subprocess.run(["modal", "deploy", file_path], env=modal_env)
 
-            yield json.dumps({"success": True, "error": None}) + "\n"
-
             print("Deployment finished successfully!")
+            yield json.dumps(
+                {
+                    "success": True,
+                    "modal_url": f"https://modal.com/{result.workspace_username}/apps",
+                }
+            ) + "\n"
     except ValueError as e:
         yield json.dumps(
             {
