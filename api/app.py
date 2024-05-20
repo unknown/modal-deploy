@@ -34,53 +34,67 @@ def extract_github_info(url: str):
         return (org, repo, branch, path)
     else:
         raise ValueError(
-            "The URL is not in the expected format: https://github.com/{org}/{repo}/{path}"
+            "The URL is not in the expected format: https://github.com/{org}/{repo}/blob/{branch}/{path}"
         )
 
 
 def deploy_repo(github_file_url: str):
-    org, repo, branch, path = extract_github_info(github_file_url)
+    try:
+        org, repo, branch, path = extract_github_info(github_file_url)
 
-    repo_url = f"https://github.com/{org}/{repo}"
-    with tempfile.TemporaryDirectory() as dir_name:
-        print(f"Cloning {repo_url} to {dir_name}")
-
-        git.Repo.clone_from(repo_url, dir_name, branch=branch)
-        file_path = os.path.join(dir_name, path)
-
-        print(f"Deploying {file_path}")
-
-        if not os.path.isfile(file_path):
-            raise ValueError(f"The file {path} does not exist in {repo_url}")
-
-        token_flow = TokenFlow(ModalClient())
-        _, web_url, code = token_flow.start()
-
-        yield json.dumps({"web_url": web_url, "code": code})
-
-        print("Waiting for token flow to complete...")
-
-        result = None
-        for attempt in range(5):
-            result = token_flow.finish()
-            if result is not None:
-                break
-            print(f"Waiting for token flow to complete... (attempt {attempt + 2})")
-
-        if result is None:
-            yield json.dumps({"error": "Timeout waiting for token flow to complete"})
-            return
-
-        print("Web authentication finished successfully!")
-
-        yield json.dumps(
-            {"token_id": result.token_id, "token_secret": result.token_secret}
+        repo_url = f"https://github.com/{org}/{repo}"
+        repo_url_with_creds = repo_url.replace(
+            "https://", "https://" + os.environ["GITHUB_TOKEN"] + "@"
         )
+        with tempfile.TemporaryDirectory() as dir_name:
+            print(f"Cloning {repo_url} to {dir_name}")
 
-        modal_env = os.environ.copy()
-        modal_env["MODAL_TOKEN_ID"] = result.token_id
-        modal_env["MODAL_TOKEN_SECRET"] = result.token_secret
-        subprocess.run(["modal", "deploy", file_path], env=modal_env)
+            git.Repo.clone_from(repo_url_with_creds, dir_name, branch=branch)
+            file_path = os.path.join(dir_name, path)
+
+            print(f"Deploying {file_path}")
+
+            if not os.path.isfile(file_path):
+                raise ValueError(f"The file {path} does not exist in {repo_url}")
+
+            token_flow = TokenFlow(ModalClient())
+            _, web_url, code = token_flow.start()
+
+            yield json.dumps(
+                {"success": True, "error": None, "web_url": web_url, "code": code}
+            ) + "\n"
+
+            print("Waiting for token flow to complete...")
+
+            result = None
+            for attempt in range(5):
+                result = token_flow.finish()
+                if result is not None:
+                    break
+                print(f"Waiting for token flow to complete... (attempt {attempt + 2})")
+
+            if result is None:
+                raise ValueError("Timeout waiting for token flow to complete")
+
+            print("Web authentication finished successfully!")
+
+            # TODO: modal isn't respecting the env vars
+            modal_env = os.environ.copy()
+            modal_env["MODAL_TOKEN_ID"] = result.token_id
+            modal_env["MODAL_TOKEN_SECRET"] = result.token_secret
+            subprocess.run(["modal", "deploy", file_path], env=modal_env)
+
+            yield json.dumps({"success": True, "error": None}) + "\n"
+
+            print("Deployment finished successfully!")
+    except ValueError as e:
+        yield json.dumps(
+            {
+                "success": False,
+                "error": str(e),
+            }
+        )
+        return
 
 
 @app.function(image=image, secrets=[modal.Secret.from_name("github-secret")])
