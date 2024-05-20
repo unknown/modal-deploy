@@ -48,18 +48,15 @@ def deploy_repo(github_file_url: str):
         )
         with tempfile.TemporaryDirectory() as dir_name:
             print(f"Cloning {repo_url} to {dir_name}")
-
             git.Repo.clone_from(repo_url_with_creds, dir_name, branch=branch)
+
             file_path = os.path.join(dir_name, path)
-
-            print(f"Deploying {file_path}")
-
             if not os.path.exists(file_path):
                 raise ValueError(f"The path {path} does not exist in {repo_url}")
-
-            if not os.path.isfile(file_path):
+            elif not os.path.isfile(file_path):
                 raise ValueError(f"The path {path} is not a file in {repo_url}")
 
+            print("Starting token flow...")
             token_flow = TokenFlow(ModalClient())
             _, web_url, code = token_flow.start()
 
@@ -79,10 +76,11 @@ def deploy_repo(github_file_url: str):
             print("Web authentication finished successfully!")
             yield json.dumps({"success": True})
 
-            # TODO: modal isn't respecting the env vars
-            modal_env = os.environ.copy()
+            modal_env = {}
+            modal_env["PATH"] = os.environ["PATH"]
             modal_env["MODAL_TOKEN_ID"] = result.token_id
             modal_env["MODAL_TOKEN_SECRET"] = result.token_secret
+
             process = subprocess.Popen(
                 ["modal", "deploy", file_path],
                 env=modal_env,

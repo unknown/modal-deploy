@@ -60,7 +60,7 @@
 			return;
 		}
 
-		statusMessage = 'Deploying...';
+		statusMessage = 'Deploying... (this may take a few minutes)';
 
 		const deploy = await getChunk(reader);
 		const deployResult = deploySchema.parse(JSON.parse(deploy));
