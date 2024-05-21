@@ -37,6 +37,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fontsource-variable/inter": "^5.0.18",
 		"lucide-svelte": "^0.378.0",
 		"zod": "^3.23.8"
 	}
