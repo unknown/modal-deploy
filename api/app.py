@@ -51,6 +51,7 @@ def deploy_repo(github_file_url: str):
             print(f"Cloning {repo_url} to {dir_name}")
             git.Repo.clone_from(repo_url_with_creds, dir_name, branch=branch)
 
+            # check if the file exists
             file_path = os.path.join(dir_name, path)
             if not os.path.exists(file_path):
                 raise ValueError(f'The path "{path}" does not exist in {repo_url}')
@@ -64,6 +65,7 @@ def deploy_repo(github_file_url: str):
             print("Waiting for token flow to complete...")
             yield json.dumps({"success": True, "web_url": web_url, "code": code}) + "\n"
 
+            # wait for the token flow to complete
             result = None
             for attempt in range(5):
                 result = token_flow.finish()
@@ -77,11 +79,13 @@ def deploy_repo(github_file_url: str):
             print("Web authentication finished successfully!")
             yield json.dumps({"success": True})
 
-            modal_env = {}
-            modal_env["PATH"] = os.environ["PATH"]
-            modal_env["MODAL_TOKEN_ID"] = result.token_id
-            modal_env["MODAL_TOKEN_SECRET"] = result.token_secret
-
+            # if the environment is inherited from the parent process, modal does not respect the token
+            # i'm unsure which variables cause this, but this also works
+            modal_env = {
+                "PATH": os.environ["PATH"],
+                "MODAL_TOKEN_ID": result.token_id,
+                "MODAL_TOKEN_SECRET": result.token_secret,
+            }
             process = subprocess.Popen(
                 ["modal", "deploy", file_path],
                 env=modal_env,
